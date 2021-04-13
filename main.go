@@ -6,6 +6,10 @@ import (
 	"fmt"
 )
 
+type BlockChain struct {
+	blocks []*Block
+}
+
 type Block struct {
 	Hash     []byte
 	Data     []byte
@@ -18,10 +22,36 @@ func (b *Block) DeriveHash() {
 	b.Hash = hash[:]
 }
 
-//func CreateBlock(data string, prevHash []byte) *Block {
+func CreateBlock(data string, prevHash []byte) *Block {
+	block := &Block{[]byte{}, []byte(data), prevHash}
+	block.DeriveHash()
+	return block
+}
 
-//}
+func (chain *BlockChain) AddBlock(data string) {
+	prevBlock := chain.blocks[len(chain.blocks)-1]
+	newBlock := CreateBlock(data, prevBlock.Hash)
+	chain.blocks = append(chain.blocks, newBlock)
+}
+
+func Genesis() *Block {
+	return CreateBlock("Genesis", []byte{})
+}
+
+func InitBlockChain() *BlockChain {
+	return &BlockChain{[]*Block{Genesis()}}
+}
 
 func main() {
-	fmt.Println([]byte("This is a test"))
+	chain := InitBlockChain()
+
+	chain.AddBlock("First Block")
+	chain.AddBlock("Second Block")
+	chain.AddBlock("Third Block")
+
+	for _, block := range chain.blocks {
+		fmt.Printf("Previous Hash: %x\n", block.PrevHash)
+		fmt.Printf("Data in Block: %s\n", block.Data)
+		fmt.Printf("Hash: %x\n", block.Hash)
+	}
 }
